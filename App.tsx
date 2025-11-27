@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AgoraRTC, {
   AgoraRTCProvider,
   LocalVideoTrack,
@@ -188,7 +189,7 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
             style={styles.cameraOffPlaceholder}
             accessibilityLabel="Camera is off"
           >
-            <Text style={styles.cameraOffText}>📷</Text>
+            <MaterialIcons name="videocam-off" size={40} color="#fff" />
           </View>
         )}
         <Text style={styles.localVideoLabel}>You</Text>
@@ -202,7 +203,11 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
           accessibilityLabel={isMicOn ? "Mute microphone" : "Unmute microphone"}
           accessibilityRole="button"
         >
-          <Text style={styles.controlButtonText}>{isMicOn ? "🎤" : "🔇"}</Text>
+          <MaterialIcons
+            name={isMicOn ? "mic" : "mic-off"}
+            size={28}
+            color={isMicOn ? "#fff" : "#ff5252"}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -211,7 +216,12 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
           accessibilityLabel="Leave call"
           accessibilityRole="button"
         >
-          <Text style={styles.leaveButtonText}>📞</Text>
+          <FontAwesome
+            name="phone"
+            size={32}
+            color="#fff"
+            style={{ transform: [{ rotate: "135deg" }] }}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -220,9 +230,11 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
           accessibilityLabel={isCameraOn ? "Turn off camera" : "Turn on camera"}
           accessibilityRole="button"
         >
-          <Text style={styles.controlButtonText}>
-            {isCameraOn ? "📹" : "📷"}
-          </Text>
+          <MaterialIcons
+            name={isCameraOn ? "videocam" : "videocam-off"}
+            size={28}
+            color={isCameraOn ? "#fff" : "#ff5252"}
+          />
         </TouchableOpacity>
       </View>
     </View>
