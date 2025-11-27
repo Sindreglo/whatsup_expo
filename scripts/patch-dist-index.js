@@ -10,12 +10,10 @@ if (!fs.existsSync(file)) {
 
 let html = fs.readFileSync(file, 'utf8');
 
-if (/<base\s+href=/i.test(html)) {
-  console.log('base tag already present in dist/index.html');
-  process.exit(0);
-}
+// Convert absolute paths to relative paths for src and href attributes
+// This handles paths like /favicon.ico -> ./favicon.ico and /_expo/... -> ./_expo/...
+// The (?!\/) negative lookahead excludes protocol-relative URLs like //example.com
+html = html.replace(/(src|href)="\/(?!\/)/g, '$1="./');
 
-// Insert <base href="./"> right after the opening <head> tag
-html = html.replace(/<head(\s[^>]*)?>/i, match => `${match}\n  <base href="./">`);
 fs.writeFileSync(file, html, 'utf8');
-console.log('Inserted <base href="./"> into dist/index.html');
+console.log('Converted absolute paths to relative paths in dist/index.html');
