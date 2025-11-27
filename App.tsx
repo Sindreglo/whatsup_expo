@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -16,7 +16,6 @@ import AgoraRTC, {
   useLocalMicrophoneTrack,
   usePublish,
   useRemoteUsers,
-  useRTCClient,
 } from "agora-rtc-react";
 import { AGORA_APP_ID } from "@env";
 
@@ -76,7 +75,9 @@ interface VideoRoomProps {
 }
 
 function VideoRoom({ onLeave }: VideoRoomProps) {
-  const agoraClient = useRTCClient();
+  // Camera and microphone state
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isMicOn, setIsMicOn] = useState(true);
 
   // Get local camera and microphone tracks
   const { localCameraTrack, isLoading: isCameraLoading } =
@@ -97,6 +98,28 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
   // Publish local tracks
   usePublish([localMicrophoneTrack, localCameraTrack]);
 
+  // Handle camera toggle
+  useEffect(() => {
+    if (localCameraTrack) {
+      localCameraTrack.setEnabled(isCameraOn);
+    }
+  }, [isCameraOn, localCameraTrack]);
+
+  // Handle microphone toggle
+  useEffect(() => {
+    if (localMicrophoneTrack) {
+      localMicrophoneTrack.setEnabled(isMicOn);
+    }
+  }, [isMicOn, localMicrophoneTrack]);
+
+  const toggleCamera = () => {
+    setIsCameraOn((prev) => !prev);
+  };
+
+  const toggleMic = () => {
+    setIsMicOn((prev) => !prev);
+  };
+
   const isLoading = isCameraLoading || isMicLoading || !isConnected;
 
   if (isLoading) {
@@ -107,45 +130,101 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
     );
   }
 
+  // Calculate remote video height based on number of remote users
+  const getRemoteVideoStyle = (index: number, total: number) => {
+    if (total === 1) {
+      // Single remote user takes full screen
+      return styles.remoteVideoFull;
+    } else if (total === 2) {
+      // Two remote users split the screen vertically
+      return styles.remoteVideoHalf;
+    } else {
+      // More than 2 users - show in grid
+      return styles.remoteVideoGrid;
+    }
+  };
+
   return (
     <View style={styles.videoContainer}>
-      <Text style={styles.channelTitle}>Channel: {CHANNEL_NAME}</Text>
-
-      {/* Local Video */}
-      <View style={styles.localVideoContainer}>
-        <Text style={styles.videoLabel}>You</Text>
-        {localCameraTrack && (
-          <LocalVideoTrack
-            track={localCameraTrack}
-            play={true}
-            style={styles.localVideo}
-          />
-        )}
-      </View>
-
-      {/* Remote Videos */}
+      {/* Remote Videos - Full Screen / Split Screen */}
       <View style={styles.remoteVideosContainer}>
         {remoteUsers.length === 0 ? (
-          <Text style={styles.waitingText}>Waiting for others to join...</Text>
+          <View style={styles.waitingContainer}>
+            <Text style={styles.waitingText}>
+              Waiting for others to join...
+            </Text>
+          </View>
         ) : (
-          remoteUsers.map((user) => (
-            <View key={user.uid} style={styles.remoteVideoWrapper}>
-              <Text style={styles.videoLabel}>User {user.uid}</Text>
+          remoteUsers.slice(0, 4).map((user, index) => (
+            <View
+              key={user.uid}
+              style={getRemoteVideoStyle(
+                index,
+                Math.min(remoteUsers.length, 4)
+              )}
+            >
               <RemoteUser
                 user={user}
                 playVideo={true}
                 playAudio={true}
                 style={styles.remoteVideo}
               />
+              <Text style={styles.remoteVideoLabel}>User {user.uid}</Text>
             </View>
           ))
         )}
       </View>
 
-      {/* Leave Button */}
-      <TouchableOpacity style={styles.leaveButton} onPress={onLeave}>
-        <Text style={styles.buttonText}>Leave Call</Text>
-      </TouchableOpacity>
+      {/* Local Video - Small in bottom right corner */}
+      <View style={styles.localVideoContainer}>
+        {localCameraTrack && isCameraOn ? (
+          <LocalVideoTrack
+            track={localCameraTrack}
+            play={true}
+            style={styles.localVideo}
+          />
+        ) : (
+          <View
+            style={styles.cameraOffPlaceholder}
+            accessibilityLabel="Camera is off"
+          >
+            <Text style={styles.cameraOffText}>📷</Text>
+          </View>
+        )}
+        <Text style={styles.localVideoLabel}>You</Text>
+      </View>
+
+      {/* Control Buttons */}
+      <View style={styles.controlsContainer}>
+        <TouchableOpacity
+          style={[styles.controlButton, !isMicOn && styles.controlButtonOff]}
+          onPress={toggleMic}
+          accessibilityLabel={isMicOn ? "Mute microphone" : "Unmute microphone"}
+          accessibilityRole="button"
+        >
+          <Text style={styles.controlButtonText}>{isMicOn ? "🎤" : "🔇"}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.leaveButton}
+          onPress={onLeave}
+          accessibilityLabel="Leave call"
+          accessibilityRole="button"
+        >
+          <Text style={styles.leaveButtonText}>📞</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.controlButton, !isCameraOn && styles.controlButtonOff]}
+          onPress={toggleCamera}
+          accessibilityLabel={isCameraOn ? "Turn off camera" : "Turn on camera"}
+          accessibilityRole="button"
+        >
+          <Text style={styles.controlButtonText}>
+            {isCameraOn ? "📹" : "📷"}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -164,7 +243,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#1a1a2e",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
   },
   title: {
     fontSize: 28,
@@ -196,31 +274,32 @@ const styles = StyleSheet.create({
   videoContainer: {
     flex: 1,
     width: "100%",
-    backgroundColor: "#1a1a2e",
-    padding: 10,
-    paddingTop: Platform.OS === "ios" ? 50 : 30,
+    backgroundColor: "#000000",
   },
-  channelTitle: {
-    fontSize: 18,
-    color: "#ffffff",
-    textAlign: "center",
-    marginBottom: 10,
+  remoteVideosContainer: {
+    flex: 1,
+    flexDirection: "column",
   },
-  localVideoContainer: {
-    height: 200,
-    backgroundColor: "#2d2d44",
-    borderRadius: 10,
-    overflow: "hidden",
-    marginBottom: 10,
+  remoteVideoFull: {
+    flex: 1,
+    width: "100%",
   },
-  localVideo: {
+  remoteVideoHalf: {
+    flex: 1,
+    width: "100%",
+  },
+  remoteVideoGrid: {
+    width: "50%",
+    height: "50%",
+  },
+  remoteVideo: {
     width: "100%",
     height: "100%",
   },
-  videoLabel: {
+  remoteVideoLabel: {
     position: "absolute",
-    top: 10,
-    left: 10,
+    top: Platform.OS === "ios" ? 60 : 40,
+    left: 16,
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "bold",
@@ -230,41 +309,98 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 5,
   },
-  remoteVideosContainer: {
+  waitingContainer: {
     flex: 1,
-    flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "center",
-    gap: 10,
-  },
-  remoteVideoWrapper: {
-    width: "48%",
-    aspectRatio: 4 / 3,
-    backgroundColor: "#2d2d44",
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  remoteVideo: {
-    width: "100%",
-    height: "100%",
+    alignItems: "center",
+    backgroundColor: "#1a1a2e",
   },
   waitingText: {
     color: "#a0a0a0",
-    fontSize: 16,
+    fontSize: 18,
     textAlign: "center",
-    marginTop: 50,
+  },
+  localVideoContainer: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 60 : 40,
+    right: 16,
+    width: 100,
+    height: 140,
+    backgroundColor: "#2d2d44",
+    borderRadius: 12,
+    overflow: "hidden",
+    zIndex: 100,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  localVideo: {
+    width: "100%",
+    height: "100%",
+  },
+  localVideoLabel: {
+    position: "absolute",
+    bottom: 8,
+    left: 8,
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "bold",
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  cameraOffPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#2d2d44",
+  },
+  cameraOffText: {
+    fontSize: 32,
   },
   loadingText: {
     color: "#ffffff",
     fontSize: 18,
   },
+  controlsContainer: {
+    position: "absolute",
+    bottom: Platform.OS === "ios" ? 50 : 30,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    zIndex: 100,
+  },
+  controlButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  controlButtonOff: {
+    backgroundColor: "rgba(255,0,0,0.6)",
+  },
+  controlButtonText: {
+    fontSize: 24,
+  },
   leaveButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: "#f44336",
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignSelf: "center",
-    marginTop: 10,
-    marginBottom: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  leaveButtonText: {
+    fontSize: 28,
+    transform: [{ rotate: "135deg" }],
   },
 });
