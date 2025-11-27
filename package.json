@@ -1,12 +1,17 @@
 {
   "name": "whatsup_expo",
   "version": "1.0.0",
+  "private": true,
+  "homepage": "https://sindreglo.github.io/whatsup_expo",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:web": "expo export",
+    "predeploy": "npm run build:web && cp dist/index.html dist/404.html",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -26,6 +31,5 @@
     "@types/react": "~19.1.0",
     "gh-pages": "^6.3.0",
     "typescript": "~5.9.2"
-  },
-  "private": true
+  }
 }
