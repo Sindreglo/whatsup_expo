@@ -10,7 +10,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:web": "expo export",
-    "predeploy": "npm run build:web && cp dist/index.html dist/404.html",
+    "predeploy": "npm run build:web && node scripts/patch-dist-index.js && node scripts/copy-404.js",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
