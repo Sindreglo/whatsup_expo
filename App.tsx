@@ -150,13 +150,18 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
       <View style={styles.remoteVideosContainer}>
         {remoteUsers.length === 0 ? (
           <View style={styles.waitingContainer}>
-            <Text style={styles.waitingText}>Waiting for others to join...</Text>
+            <Text style={styles.waitingText}>
+              Waiting for others to join...
+            </Text>
           </View>
         ) : (
           remoteUsers.slice(0, 4).map((user, index) => (
             <View
               key={user.uid}
-              style={getRemoteVideoStyle(index, Math.min(remoteUsers.length, 4))}
+              style={getRemoteVideoStyle(
+                index,
+                Math.min(remoteUsers.length, 4)
+              )}
             >
               <RemoteUser
                 user={user}
@@ -179,7 +184,10 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
             style={styles.localVideo}
           />
         ) : (
-          <View style={styles.cameraOffPlaceholder} accessibilityLabel="Camera is off">
+          <View
+            style={styles.cameraOffPlaceholder}
+            accessibilityLabel="Camera is off"
+          >
             <Text style={styles.cameraOffText}>📷</Text>
           </View>
         )}
@@ -212,7 +220,9 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
           accessibilityLabel={isCameraOn ? "Turn off camera" : "Turn on camera"}
           accessibilityRole="button"
         >
-          <Text style={styles.controlButtonText}>{isCameraOn ? "📹" : "📷"}</Text>
+          <Text style={styles.controlButtonText}>
+            {isCameraOn ? "📹" : "📷"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -233,7 +243,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#1a1a2e",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
   },
   title: {
     fontSize: 28,
