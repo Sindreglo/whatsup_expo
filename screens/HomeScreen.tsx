@@ -65,8 +65,9 @@ export default function HomeScreen({ onJoinCall }: HomeScreenProps) {
           <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton]}
             onPress={() => {
-              // Placeholder for settings/create functionality
+              // Placeholder for settings functionality
               // This can be connected to navigation or modal in future
+              alert("Settings coming soon!");
             }}
             accessibilityLabel="Open settings"
             accessibilityRole="button"
