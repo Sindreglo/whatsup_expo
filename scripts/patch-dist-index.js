@@ -3,7 +3,11 @@ const path = require('path');
 
 const distDir = path.join(__dirname, '..', 'dist');
 const file = path.join(distDir, 'index.html');
-const BASE_URL = '/whatsup_expo';
+
+// Read baseUrl from app.json to maintain consistency
+const appJsonPath = path.join(__dirname, '..', 'app.json');
+const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'));
+const BASE_URL = appJson.expo?.experiments?.baseUrl || '';
 
 if (!fs.existsSync(file)) {
   console.error('dist/index.html not found. Run npm run build:web first.');
@@ -12,10 +16,10 @@ if (!fs.existsSync(file)) {
 
 let html = fs.readFileSync(file, 'utf8');
 
-// The baseUrl in app.json already adds /whatsup_expo prefix to all asset paths.
+// The baseUrl in app.json already adds the prefix to all asset paths.
 // We don't need to convert paths anymore - they already point to the correct location.
 // Just log confirmation.
-console.log('Asset paths are correctly prefixed with baseUrl from app.json');
+console.log(`Asset paths are correctly prefixed with baseUrl: ${BASE_URL || '(none)'}`);
 
 // Add PWA meta tags and links if not already present
 // PWA paths should use the base URL for consistency
