@@ -30,21 +30,24 @@ import { MaterialIcons } from "@expo/vector-icons";
  * This is called when the native placeholder is rendered.
  */
 function logNativePlatformWarning(): void {
-  console.warn(
-    `[whatsup_expo] Video calling feature is not available on ${Platform.OS}.
-
-The Agora web SDK (agora-rtc-react) only works in browser environments.
-This app is currently running in Expo on ${Platform.OS === "ios" ? "iOS" : "Android"}.
-
-To enable video calling on native platforms, consider these alternatives:
-1. Use react-native-agora package: https://github.com/AgoraIO-Community/react-native-agora
-2. Implement a WebView-based solution
-3. Use Expo's native module system with EAS Build
-
-For more information, see:
-- Agora React Native SDK: https://docs.agora.io/en/video-calling/get-started/get-started-sdk?platform=react-native
-- Expo with native modules: https://docs.expo.dev/modules/overview/`
-  );
+  const platform = Platform.OS === "ios" ? "iOS" : "Android";
+  const warningMessage = [
+    `[whatsup_expo] Video calling feature is not available on ${Platform.OS}.`,
+    "",
+    "The Agora web SDK (agora-rtc-react) only works in browser environments.",
+    `This app is currently running in Expo on ${platform}.`,
+    "",
+    "To enable video calling on native platforms, consider these alternatives:",
+    "1. Use react-native-agora package: https://github.com/AgoraIO-Community/react-native-agora",
+    "2. Implement a WebView-based solution",
+    "3. Use Expo's native module system with EAS Build",
+    "",
+    "For more information, see:",
+    "- Agora React Native SDK: https://docs.agora.io/en/video-calling/get-started/get-started-sdk?platform=react-native",
+    "- Expo with native modules: https://docs.expo.dev/modules/overview/",
+  ].join("\n");
+  
+  console.warn(warningMessage);
 }
 
 export default function NativePlaceholder() {

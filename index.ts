@@ -18,21 +18,22 @@ import { Platform } from 'react-native';
  * 
  * @see https://docs.agora.io/en/video-calling/get-started/get-started-sdk
  */
+
 if (Platform.OS !== 'web') {
-  // Polyfill window object for native environments
-  const globalWindow = (typeof window !== 'undefined' ? window : global) as typeof globalThis & {
-    addEventListener?: typeof window.addEventListener;
-    removeEventListener?: typeof window.removeEventListener;
-  };
+  // Get reference to global object (window in RN, global as fallback)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const globalObj: any = typeof window !== 'undefined' ? window : global;
   
-  if (typeof globalWindow.addEventListener !== 'function') {
-    globalWindow.addEventListener = () => {
+  // Polyfill window.addEventListener if not present
+  if (typeof globalObj.addEventListener !== 'function') {
+    globalObj.addEventListener = () => {
       // No-op: native environments don't support window event listeners
     };
   }
   
-  if (typeof globalWindow.removeEventListener !== 'function') {
-    globalWindow.removeEventListener = () => {
+  // Polyfill window.removeEventListener if not present
+  if (typeof globalObj.removeEventListener !== 'function') {
+    globalObj.removeEventListener = () => {
       // No-op: native environments don't support window event listeners
     };
   }
