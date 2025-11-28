@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "whatsup_expo",
+    "name": "WhatsUp",
     "slug": "whatsup_expo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icons/icon-512.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -38,8 +38,12 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "favicon": "./assets/icons/favicon.png",
+      "bundler": "metro",
+      "name": "WhatsUp",
+      "shortName": "WhatsUp",
+      "themeColor": "#0066FF",
+      "backgroundColor": "#1a1a2e"
     },
     "plugins": [
       "expo-font"
