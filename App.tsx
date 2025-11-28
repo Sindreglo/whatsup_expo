@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   Platform,
   ActivityIndicator,
+  Image,
+  ScrollView,
 } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import AgoraRTC, {
   AgoraRTCProvider,
@@ -22,10 +24,22 @@ import AgoraRTC, {
   useRemoteUsers,
 } from "agora-rtc-react";
 import { AGORA_APP_ID } from "@env";
+import appJson from "./app.json";
 
 // Theme colors
 const PRIMARY_COLOR = "#0066FF";
 const BACKGROUND_COLOR = "#1a1a2e";
+const TEXT_COLOR = "#ffffff";
+const TEXT_SECONDARY = "#a0a0a0";
+
+// Get app version from app.json
+const APP_VERSION = appJson.expo.version;
+
+// Detect if running on web and on a mobile device
+const isWeb = Platform.OS === "web";
+const isMobileWeb = isWeb && typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isIOSWeb = isWeb && typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isAndroidWeb = isWeb && typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
 
 // Fixed channel name
 const CHANNEL_NAME = "main";
@@ -54,17 +68,120 @@ function VideoCall() {
   if (!isJoined) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Agora Video Call</Text>
-        <Text style={styles.channelInfo}>Channel: {CHANNEL_NAME}</Text>
-        <TouchableOpacity
-          style={styles.joinButton}
-          onPress={handleJoin}
-          disabled={isJoining}
+        <ScrollView 
+          contentContainerStyle={styles.landingContent}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.buttonText}>
-            {isJoining ? "Joining..." : "Join Call"}
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("./assets/icons/icon-512.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+
+          {/* App Title */}
+          <Text style={styles.title}>WhatsUp</Text>
+
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>
+            Connect with friends and family through video calls
           </Text>
-        </TouchableOpacity>
+
+          {/* Creator credit */}
+          <Text style={styles.creatorText}>Created by Sindre Glomnes</Text>
+
+          {/* Show different content based on platform */}
+          {isMobileWeb ? (
+            <View style={styles.installGuideContainer}>
+              <Text style={styles.installGuideTitle}>
+                <Ionicons name="download-outline" size={20} color={TEXT_COLOR} /> Add to Home Screen
+              </Text>
+              <Text style={styles.installGuideSubtitle}>
+                For the best experience, install this app on your device
+              </Text>
+              
+              {isIOSWeb ? (
+                <View style={styles.guideSteps}>
+                  <Text style={styles.guideHeader}>
+                    <Ionicons name="logo-apple" size={18} color={TEXT_COLOR} /> iOS (Safari)
+                  </Text>
+                  <View style={styles.stepContainer}>
+                    <Text style={styles.stepNumber}>1</Text>
+                    <Text style={styles.stepText}>
+                      Tap the <Text style={styles.highlight}>Share</Text> button <Ionicons name="share-outline" size={16} color={PRIMARY_COLOR} /> at the bottom of Safari
+                    </Text>
+                  </View>
+                  <View style={styles.stepContainer}>
+                    <Text style={styles.stepNumber}>2</Text>
+                    <Text style={styles.stepText}>
+                      Scroll down and tap <Text style={styles.highlight}>"Add to Home Screen"</Text>
+                    </Text>
+                  </View>
+                  <View style={styles.stepContainer}>
+                    <Text style={styles.stepNumber}>3</Text>
+                    <Text style={styles.stepText}>
+                      Tap <Text style={styles.highlight}>"Add"</Text> in the top right corner
+                    </Text>
+                  </View>
+                </View>
+              ) : isAndroidWeb ? (
+                <View style={styles.guideSteps}>
+                  <Text style={styles.guideHeader}>
+                    <Ionicons name="logo-android" size={18} color={TEXT_COLOR} /> Android (Chrome)
+                  </Text>
+                  <View style={styles.stepContainer}>
+                    <Text style={styles.stepNumber}>1</Text>
+                    <Text style={styles.stepText}>
+                      Tap the <Text style={styles.highlight}>Menu</Text> button <Ionicons name="ellipsis-vertical" size={16} color={PRIMARY_COLOR} /> in the top right
+                    </Text>
+                  </View>
+                  <View style={styles.stepContainer}>
+                    <Text style={styles.stepNumber}>2</Text>
+                    <Text style={styles.stepText}>
+                      Tap <Text style={styles.highlight}>"Add to Home screen"</Text> or <Text style={styles.highlight}>"Install app"</Text>
+                    </Text>
+                  </View>
+                  <View style={styles.stepContainer}>
+                    <Text style={styles.stepNumber}>3</Text>
+                    <Text style={styles.stepText}>
+                      Tap <Text style={styles.highlight}>"Add"</Text> to confirm
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.guideSteps}>
+                  <Text style={styles.guideHeader}>Mobile Browser</Text>
+                  <Text style={styles.stepText}>
+                    Look for "Add to Home Screen" or "Install" option in your browser's menu
+                  </Text>
+                </View>
+              )}
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.joinButton}
+              onPress={handleJoin}
+              disabled={isJoining}
+            >
+              <MaterialIcons
+                name="video-call"
+                size={24}
+                color={TEXT_COLOR}
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.buttonText}>
+                {isJoining ? "Joining..." : "Join Call"}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+
+        {/* Footer with version */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Version {APP_VERSION}</Text>
+        </View>
       </View>
     );
   }
@@ -251,6 +368,7 @@ export default function App() {
   const [fontsLoaded] = useFonts({
     ...MaterialIcons.font,
     ...FontAwesome.font,
+    ...Ionicons.font,
   });
 
   if (!fontsLoaded) {
@@ -284,11 +402,44 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  landingContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+  },
+  logoContainer: {
+    marginBottom: 16,
+    shadowColor: PRIMARY_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    borderRadius: 24,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: "bold",
-    color: "#ffffff",
-    marginBottom: 20,
+    color: TEXT_COLOR,
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: TEXT_SECONDARY,
+    textAlign: "center",
+    marginBottom: 16,
+    paddingHorizontal: 24,
+    lineHeight: 24,
+  },
+  creatorText: {
+    fontSize: 14,
+    color: TEXT_SECONDARY,
+    marginBottom: 32,
   },
   channelInfo: {
     fontSize: 16,
@@ -296,20 +447,98 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   joinButton: {
-    backgroundColor: "#4CAF50",
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: 10,
-    elevation: 3,
+    backgroundColor: PRIMARY_COLOR,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: 4,
+  },
+  buttonIcon: {
+    marginRight: 12,
   },
   buttonText: {
-    color: "#ffffff",
+    color: TEXT_COLOR,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  footer: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.1)",
+    width: "100%",
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 12,
+    color: TEXT_SECONDARY,
+  },
+  installGuideContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 16,
+    padding: 20,
+    width: "100%",
+    maxWidth: 350,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+  },
+  installGuideTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    color: TEXT_COLOR,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  installGuideSubtitle: {
+    fontSize: 14,
+    color: TEXT_SECONDARY,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  guideSteps: {
+    backgroundColor: "rgba(0, 102, 255, 0.1)",
+    borderRadius: 12,
+    padding: 16,
+  },
+  guideHeader: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: TEXT_COLOR,
+    marginBottom: 16,
+  },
+  stepContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  stepNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: PRIMARY_COLOR,
+    color: TEXT_COLOR,
+    textAlign: "center",
+    lineHeight: 24,
+    fontSize: 14,
+    fontWeight: "bold",
+    marginRight: 12,
+  },
+  stepText: {
+    flex: 1,
+    fontSize: 14,
+    color: TEXT_COLOR,
+    lineHeight: 22,
+  },
+  highlight: {
+    color: PRIMARY_COLOR,
+    fontWeight: "600",
   },
   videoContainer: {
     flex: 1,
