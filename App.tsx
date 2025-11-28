@@ -1,3 +1,19 @@
+/**
+ * App.tsx
+ * 
+ * Main entry point for WhatsUp video calling app.
+ * 
+ * Key features:
+ * - SafeAreaProvider for handling notches and system UI on all platforms
+ * - StatusBar configuration for consistent toolbar colors
+ * - Theme colors: Primary #0066FF, Background #1a1a2e
+ * 
+ * PWA Support:
+ * - Icons are located in assets/icons/ (favicon.png, icon-192.png, icon-512.png, apple-touch-icon.png)
+ * - Web manifest and meta tags are configured in app.json and web/index.html
+ * - To replace placeholder icons, update the PNG files in assets/icons/
+ */
+
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
@@ -7,6 +23,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AgoraRTC, {
   AgoraRTCProvider,
@@ -19,6 +36,14 @@ import AgoraRTC, {
   useRemoteUsers,
 } from "agora-rtc-react";
 import { AGORA_APP_ID } from "@env";
+import HomeScreen from "./screens/HomeScreen";
+
+// Theme colors - keep consistent across the app
+const THEME_COLORS = {
+  primary: "#0066FF",
+  background: "#1a1a2e",
+  statusBarStyle: "light" as const,
+};
 
 // Fixed channel name
 const CHANNEL_NAME = "main";
@@ -46,28 +71,18 @@ function VideoCall() {
 
   if (!isJoined) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Agora Video Call</Text>
-        <Text style={styles.channelInfo}>Channel: {CHANNEL_NAME}</Text>
-        <TouchableOpacity
-          style={styles.joinButton}
-          onPress={handleJoin}
-          disabled={isJoining}
-        >
-          <Text style={styles.buttonText}>
-            {isJoining ? "Joining..." : "Join Call"}
-          </Text>
-        </TouchableOpacity>
-        <StatusBar style="auto" />
-      </View>
+      <>
+        <HomeScreen onJoinCall={handleJoin} />
+        <StatusBar style={THEME_COLORS.statusBarStyle} backgroundColor={THEME_COLORS.primary} />
+      </>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom", "left", "right"]}>
       <VideoRoom onLeave={handleLeave} />
-      <StatusBar style="auto" />
-    </View>
+      <StatusBar style={THEME_COLORS.statusBarStyle} backgroundColor={THEME_COLORS.primary} />
+    </SafeAreaView>
   );
 }
 
@@ -125,9 +140,9 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom", "left", "right"]}>
         <Text style={styles.loadingText}>Connecting to channel...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -243,9 +258,11 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
 
 export default function App() {
   return (
-    <AgoraRTCProvider client={client}>
-      <VideoCall />
-    </AgoraRTCProvider>
+    <SafeAreaProvider>
+      <AgoraRTCProvider client={client}>
+        <VideoCall />
+      </AgoraRTCProvider>
+    </SafeAreaProvider>
   );
 }
 

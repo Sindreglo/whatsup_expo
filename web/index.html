@@ -1,0 +1,53 @@
+<!--
+  web/index.html - DOCUMENTATION FILE
+  
+  NOTE: This file is NOT used directly by Expo's Metro bundler for web builds.
+  The actual HTML template is generated automatically by Expo during build.
+  
+  This file serves as documentation for the PWA meta tags that are injected
+  into the built HTML by scripts/patch-dist-index.js during the predeploy process.
+  
+  PWA Configuration for WhatsUp App
+  ==================================
+  
+  Theme Color: #0066FF (primary blue)
+  Background Color: #1a1a2e (dark theme)
+  
+  Required Icon Files (in assets/icons/):
+  - favicon.png: 64x64 pixels - Browser tab icon
+  - icon-192.png: 192x192 pixels - PWA manifest icon (standard)
+  - icon-512.png: 512x512 pixels - PWA manifest icon (high-res), also used as expo.icon
+  - apple-touch-icon.png: 180x180 pixels - iOS home screen icon
+  
+  To Replace Placeholder Icons with Final Artwork:
+  1. Create your icons in the sizes listed above
+  2. Replace the files in assets/icons/
+  3. Run: npm run predeploy
+  4. Deploy: npm run deploy
+  
+  The following meta tags are injected during build (see scripts/patch-dist-index.js):
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- PWA meta tags -->
+  <meta name="theme-color" content="#0066FF" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WhatsUp" />
+  
+  <!-- Apple touch icon for iOS home screen -->
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+  
+  <!-- Standard favicon -->
+  <link rel="icon" type="image/png" href="./assets/icons/favicon.png" />
+  
+  <title>WhatsUp</title>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

@@ -10,7 +10,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:web": "expo export",
-    "predeploy": "npm run build:web && node scripts/patch-dist-index.js && node scripts/copy-404.js",
+    "predeploy": "npm run build:web && node scripts/patch-dist-index.js && node scripts/copy-icons.js && node scripts/copy-404.js",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-dotenv": "^3.4.11",
+    "react-native-safe-area-context": "^5.6.2",
     "react-native-vector-icons": "^10.3.0",
     "react-native-web": "~0.21.0"
   },
