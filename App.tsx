@@ -37,9 +37,11 @@ const APP_VERSION = appJson.expo.version;
 
 // Detect if running on web and on a mobile device
 const isWeb = Platform.OS === "web";
-const isMobileWeb = isWeb && typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const isIOSWeb = isWeb && typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
-const isAndroidWeb = isWeb && typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+const canDetectUserAgent = isWeb && typeof navigator !== "undefined";
+const userAgent = canDetectUserAgent ? navigator.userAgent : "";
+const isMobileWeb = canDetectUserAgent && /iPhone|iPad|iPod|Android/i.test(userAgent);
+const isIOSWeb = canDetectUserAgent && /iPhone|iPad|iPod/i.test(userAgent);
+const isAndroidWeb = canDetectUserAgent && /Android/i.test(userAgent);
 
 // Fixed channel name
 const CHANNEL_NAME = "main";
@@ -95,59 +97,74 @@ function VideoCall() {
           {/* Show different content based on platform */}
           {isMobileWeb ? (
             <View style={styles.installGuideContainer}>
-              <Text style={styles.installGuideTitle}>
-                <Ionicons name="download-outline" size={20} color={TEXT_COLOR} /> Add to Home Screen
-              </Text>
+              <View style={styles.installGuideTitleRow}>
+                <Ionicons name="download-outline" size={20} color={TEXT_COLOR} />
+                <Text style={styles.installGuideTitle}>Add to Home Screen</Text>
+              </View>
               <Text style={styles.installGuideSubtitle}>
                 For the best experience, install this app on your device
               </Text>
               
               {isIOSWeb ? (
                 <View style={styles.guideSteps}>
-                  <Text style={styles.guideHeader}>
-                    <Ionicons name="logo-apple" size={18} color={TEXT_COLOR} /> iOS (Safari)
-                  </Text>
+                  <View style={styles.guideHeaderRow}>
+                    <Ionicons name="logo-apple" size={18} color={TEXT_COLOR} />
+                    <Text style={styles.guideHeader}>iOS (Safari)</Text>
+                  </View>
                   <View style={styles.stepContainer}>
                     <Text style={styles.stepNumber}>1</Text>
-                    <Text style={styles.stepText}>
-                      Tap the <Text style={styles.highlight}>Share</Text> button <Ionicons name="share-outline" size={16} color={PRIMARY_COLOR} /> at the bottom of Safari
-                    </Text>
+                    <View style={styles.stepTextContainer}>
+                      <Text style={styles.stepText}>
+                        Tap the <Text style={styles.highlight}>Share</Text> button at the bottom of Safari
+                      </Text>
+                    </View>
                   </View>
                   <View style={styles.stepContainer}>
                     <Text style={styles.stepNumber}>2</Text>
-                    <Text style={styles.stepText}>
-                      Scroll down and tap <Text style={styles.highlight}>"Add to Home Screen"</Text>
-                    </Text>
+                    <View style={styles.stepTextContainer}>
+                      <Text style={styles.stepText}>
+                        Scroll down and tap <Text style={styles.highlight}>"Add to Home Screen"</Text>
+                      </Text>
+                    </View>
                   </View>
                   <View style={styles.stepContainer}>
                     <Text style={styles.stepNumber}>3</Text>
-                    <Text style={styles.stepText}>
-                      Tap <Text style={styles.highlight}>"Add"</Text> in the top right corner
-                    </Text>
+                    <View style={styles.stepTextContainer}>
+                      <Text style={styles.stepText}>
+                        Tap <Text style={styles.highlight}>"Add"</Text> in the top right corner
+                      </Text>
+                    </View>
                   </View>
                 </View>
               ) : isAndroidWeb ? (
                 <View style={styles.guideSteps}>
-                  <Text style={styles.guideHeader}>
-                    <Ionicons name="logo-android" size={18} color={TEXT_COLOR} /> Android (Chrome)
-                  </Text>
+                  <View style={styles.guideHeaderRow}>
+                    <Ionicons name="logo-android" size={18} color={TEXT_COLOR} />
+                    <Text style={styles.guideHeader}>Android (Chrome)</Text>
+                  </View>
                   <View style={styles.stepContainer}>
                     <Text style={styles.stepNumber}>1</Text>
-                    <Text style={styles.stepText}>
-                      Tap the <Text style={styles.highlight}>Menu</Text> button <Ionicons name="ellipsis-vertical" size={16} color={PRIMARY_COLOR} /> in the top right
-                    </Text>
+                    <View style={styles.stepTextContainer}>
+                      <Text style={styles.stepText}>
+                        Tap the <Text style={styles.highlight}>Menu</Text> button (three dots) in the top right
+                      </Text>
+                    </View>
                   </View>
                   <View style={styles.stepContainer}>
                     <Text style={styles.stepNumber}>2</Text>
-                    <Text style={styles.stepText}>
-                      Tap <Text style={styles.highlight}>"Add to Home screen"</Text> or <Text style={styles.highlight}>"Install app"</Text>
-                    </Text>
+                    <View style={styles.stepTextContainer}>
+                      <Text style={styles.stepText}>
+                        Tap <Text style={styles.highlight}>"Add to Home screen"</Text> or <Text style={styles.highlight}>"Install app"</Text>
+                      </Text>
+                    </View>
                   </View>
                   <View style={styles.stepContainer}>
                     <Text style={styles.stepNumber}>3</Text>
-                    <Text style={styles.stepText}>
-                      Tap <Text style={styles.highlight}>"Add"</Text> to confirm
-                    </Text>
+                    <View style={styles.stepTextContainer}>
+                      <Text style={styles.stepText}>
+                        Tap <Text style={styles.highlight}>"Add"</Text> to confirm
+                      </Text>
+                    </View>
                   </View>
                 </View>
               ) : (
@@ -489,12 +506,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
   },
+  installGuideTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+    gap: 8,
+  },
   installGuideTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: TEXT_COLOR,
-    marginBottom: 8,
-    textAlign: "center",
   },
   installGuideSubtitle: {
     fontSize: 14,
@@ -507,16 +529,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
   },
+  guideHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 8,
+  },
   guideHeader: {
     fontSize: 16,
     fontWeight: "600",
     color: TEXT_COLOR,
-    marginBottom: 16,
   },
   stepContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginBottom: 12,
+  },
+  stepTextContainer: {
+    flex: 1,
   },
   stepNumber: {
     width: 24,
