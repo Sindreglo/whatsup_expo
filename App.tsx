@@ -8,7 +8,7 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import AgoraRTC, {
@@ -54,8 +54,9 @@ function VideoCall() {
   if (!isJoined) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Agora Video Call</Text>
-        <Text style={styles.channelInfo}>Channel: {CHANNEL_NAME}</Text>
+        <Text style={styles.title}>WhatsUp</Text>
+        <Text style={styles.channelInfo}>Created by Sindre Glomnes</Text>
+        <Text style={styles.versionInfo}>Version 1.0</Text>
         <TouchableOpacity
           style={styles.joinButton}
           onPress={handleJoin}
@@ -291,6 +292,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   channelInfo: {
+    fontSize: 16,
+    color: "#a0a0a0",
+    marginBottom: 5,
+  },
+  versionInfo: {
     fontSize: 16,
     color: "#a0a0a0",
     marginBottom: 30,
