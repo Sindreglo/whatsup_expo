@@ -14,12 +14,52 @@ if (!fs.existsSync(file)) {
   process.exit(1);
 }
 
+// Rename dist/assets/node_modules to dist/assets/_node_modules to avoid
+// gh-pages filtering out the node_modules directory during deployment.
+// gh-pages may skip files matching .gitignore patterns like "node_modules/"
+const nodeModulesDir = path.join(distDir, 'assets', 'node_modules');
+const renamedNodeModulesDir = path.join(distDir, 'assets', '_node_modules');
+if (fs.existsSync(nodeModulesDir)) {
+  // Remove existing renamed directory if it exists from a previous run
+  if (fs.existsSync(renamedNodeModulesDir)) {
+    fs.rmSync(renamedNodeModulesDir, { recursive: true });
+  }
+  fs.renameSync(nodeModulesDir, renamedNodeModulesDir);
+  console.log('Renamed dist/assets/node_modules to dist/assets/_node_modules');
+} else if (fs.existsSync(renamedNodeModulesDir)) {
+  console.log('dist/assets/_node_modules already exists (previously renamed)');
+} else {
+  console.log('No dist/assets/node_modules found to rename');
+}
+
 let html = fs.readFileSync(file, 'utf8');
 
 // The baseUrl in app.json already adds the prefix to all asset paths.
 // We don't need to convert paths anymore - they already point to the correct location.
 // Just log confirmation.
 console.log(`Asset paths are correctly prefixed with baseUrl: ${BASE_URL || '(none)'}`);
+
+// Also update the JS bundle to use the renamed path
+// Note: Expo web build outputs JS to _expo/static/js/web/. If this changes in future
+// Expo versions, this path will need to be updated.
+const jsDir = path.join(distDir, '_expo', 'static', 'js', 'web');
+if (fs.existsSync(jsDir)) {
+  const jsFiles = fs.readdirSync(jsDir).filter(f => f.endsWith('.js'));
+  jsFiles.forEach(jsFile => {
+    const jsPath = path.join(jsDir, jsFile);
+    let jsContent = fs.readFileSync(jsPath, 'utf8');
+    // Replace /assets/node_modules/ with /assets/_node_modules/
+    // This pattern matches the absolute paths used in Expo's Metro bundler output
+    const originalContent = jsContent;
+    jsContent = jsContent.replace(/\/assets\/node_modules\//g, '/assets/_node_modules/');
+    if (jsContent !== originalContent) {
+      fs.writeFileSync(jsPath, jsContent, 'utf8');
+      console.log(`Updated asset paths in ${jsFile}`);
+    }
+  });
+} else {
+  console.warn('Warning: JS output directory not found at _expo/static/js/web/');
+}
 
 // Add PWA meta tags and links if not already present
 // PWA paths should use the base URL for consistency
