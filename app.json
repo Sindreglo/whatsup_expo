@@ -7,6 +7,10 @@
     "icon": "./assets/icons/icon-512.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "assetBundlePatterns": ["**/*"],
+    "experiments": {
+      "baseUrl": "/whatsup_expo"
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",

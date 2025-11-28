@@ -87,6 +87,45 @@ This generates the `dist/` folder with:
 - `assets/icons/` - All PWA icons copied from source
 - Updated `index.html` with PWA meta tags
 
+## GitHub Pages Deployment
+
+The app is configured for deployment to GitHub Pages at a subpath (e.g., `https://username.github.io/repo-name/`).
+
+### Configuration
+
+- **Base URL**: The `experiments.baseUrl` in `app.json` is set to `/whatsup_expo` to ensure all bundled assets (JS, fonts, icons) are loaded from the correct subpath
+- **Homepage**: The `homepage` field in `package.json` points to the GitHub Pages URL
+- **Icon Fonts**: Icon fonts from `@expo/vector-icons` are preloaded using `expo-font` in `App.tsx` to ensure reliable rendering on web
+
+### Deploy Commands
+
+```bash
+# Build for production
+npm run build:web
+
+# Run pre-deploy scripts (patches index.html, adds 404.html, etc.)
+npm run predeploy
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+### Customizing for Your Repository
+
+If you fork this project, update the following:
+
+1. In `app.json`, change `experiments.baseUrl` to match your repository name:
+   ```json
+   "experiments": {
+     "baseUrl": "/your-repo-name"
+   }
+   ```
+
+2. In `package.json`, update the `homepage` field:
+   ```json
+   "homepage": "https://your-username.github.io/your-repo-name"
+   ```
+
 ## Notes
 
 - This project uses `agora-rtc-react` which is WebRTC-based and works without ejecting from Expo

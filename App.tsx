@@ -6,9 +6,11 @@ import {
   View,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import AgoraRTC, {
   AgoraRTCProvider,
   LocalVideoTrack,
@@ -245,6 +247,20 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
 }
 
 export default function App() {
+  // Load icon fonts for web reliability
+  const [fontsLoaded] = useFonts({
+    ...MaterialIcons.font,
+    ...FontAwesome.font,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <AgoraRTCProvider client={client}>
@@ -256,6 +272,12 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "#1a1a2e",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#1a1a2e",
