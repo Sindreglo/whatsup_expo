@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AgoraRTC, {
   AgoraRTCProvider,
@@ -19,6 +20,10 @@ import AgoraRTC, {
   useRemoteUsers,
 } from "agora-rtc-react";
 import { AGORA_APP_ID } from "@env";
+
+// Theme colors
+const PRIMARY_COLOR = "#0066FF";
+const BACKGROUND_COLOR = "#1a1a2e";
 
 // Fixed channel name
 const CHANNEL_NAME = "main";
@@ -58,7 +63,6 @@ function VideoCall() {
             {isJoining ? "Joining..." : "Join Call"}
           </Text>
         </TouchableOpacity>
-        <StatusBar style="auto" />
       </View>
     );
   }
@@ -66,7 +70,6 @@ function VideoCall() {
   return (
     <View style={styles.container}>
       <VideoRoom onLeave={handleLeave} />
-      <StatusBar style="auto" />
     </View>
   );
 }
@@ -243,9 +246,12 @@ function VideoRoom({ onLeave }: VideoRoomProps) {
 
 export default function App() {
   return (
-    <AgoraRTCProvider client={client}>
-      <VideoCall />
-    </AgoraRTCProvider>
+    <SafeAreaProvider>
+      <AgoraRTCProvider client={client}>
+        <StatusBar style="light" backgroundColor={PRIMARY_COLOR} />
+        <VideoCall />
+      </AgoraRTCProvider>
+    </SafeAreaProvider>
   );
 }
 
